@@ -1,7 +1,6 @@
 import * as bcrypt from "bcrypt";
 import NextAuth from "next-auth";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { prisma } from "../../../lib/prismadb";
+import { SupabaseAdapter } from "@next-auth/supabase-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
 import EmailProvider from "next-auth/providers/email";
 import GoogleProvider from "next-auth/providers/google";
@@ -14,7 +13,10 @@ import GoogleProvider from "next-auth/providers/google";
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
 export const authOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter: SupabaseAdapter({
+    url: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    secret: process.env.NEXT_PUBLIC_SUPABASE_KEY,
+  }),
   // https://next-auth.js.org/configuration/providers/oauth
   providers: [
     /* 
