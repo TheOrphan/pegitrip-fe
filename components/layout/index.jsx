@@ -1,10 +1,6 @@
-import {
-  AppShell,
-  useMantineTheme,
-  Container,
-  ScrollArea,
-} from "@mantine/core";
+import { AppShell, useMantineTheme } from "@mantine/core";
 import Header from "./header";
+import { HEADER_HEIGHT } from "./header/header.usestyle";
 
 export default function Layout({ Component, pageProps }) {
   const theme = useMantineTheme();
@@ -13,24 +9,17 @@ export default function Layout({ Component, pageProps }) {
       styles={{
         main: {
           background:
-            theme.colorScheme === "dark"
+            theme.colorScheme === "light"
               ? theme.colors.dark[8]
               : theme.colors.gray[0],
           padding: 8,
         },
       }}
-      navbarOffsetBreakpoint="sm"
-      asideOffsetBreakpoint="sm"
-      fixed
     >
-      <Container p={0} size={"100vw"}>
-        <Header />
-      </Container>
-      <ScrollArea style={{ height: "87vh" }}>
-        <Container p={0}>
-          <Component {...pageProps} />
-        </Container>
-      </ScrollArea>
+      <Header />
+      <section style={{ marginTop: HEADER_HEIGHT }}>
+        <Component {...pageProps} />
+      </section>
     </AppShell>
   );
 }

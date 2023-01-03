@@ -1,6 +1,6 @@
 import CardList from "../../components/cardlist";
 import Carousel from "../../components/carousel";
-import { Container, Skeleton, Title, Menu, ActionIcon } from "@mantine/core";
+import { Skeleton, Title, Menu, ActionIcon } from "@mantine/core";
 import useBanner from "../../lib/hooks/useBanner";
 import {
   IconHeadset,
@@ -9,28 +9,31 @@ import {
   IconBrandYoutube,
 } from "@tabler/icons";
 
+const ads = [
+  "/image/ads/ads1.png",
+  "/image/ads/ads2.png",
+  "/image/ads/ads3.png",
+  "/image/ads/ads4.png",
+  "/image/ads/ads5.png",
+  "/image/ads/ads6.png",
+];
 export default function Page({ datalist, socialMedias }) {
   const { banners, isLoading, isError } = useBanner();
   return (
     <div style={{ position: "relative" }}>
-      <Container p={0} mb={"1em"}>
-        {!isError && (
-          <Skeleton visible={isLoading}>
-            <Carousel
-              {...{
-                images: banners?.map((each) => {
-                  return {
-                    src: `${process.env.NEXT_PUBLIC_CONTENT_URI}/assets/uploads/files/contents/${each.image}`,
-                  };
-                }),
-                autoPlay: true,
-                infiniteLoop: true,
-                interval: 5000,
-              }}
-            />
-          </Skeleton>
-        )}
-      </Container>
+      {!isError && (
+        <Skeleton visible={isLoading}>
+          <Carousel
+            {...{
+              images: ads?.map((each) => {
+                return {
+                  src: `${each}`,
+                };
+              }),
+            }}
+          />
+        </Skeleton>
+      )}
       {datalist.map((each) => (
         <div key={(Math.random() + 1).toString(36).substring(7) + each.name}>
           <Title order={2} className="marker-font" pt="lg" pb="xs">
@@ -68,6 +71,7 @@ export default function Page({ datalist, socialMedias }) {
               target="_blank"
               href={socialMedias?.filter((res) => res.key === e.key)[0].value}
               rel="noopener noreferrer"
+              key={i + e.col}
             >
               <ActionIcon
                 key={i + e.col}

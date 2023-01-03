@@ -16,6 +16,10 @@ a {
   box-sizing: border-box;
 }
 
+section {
+  margin: 0 4rem;
+}
+
 .prevent-overflow {
   max-width: "150px";
   white-space: "nowrap";
@@ -26,16 +30,4 @@ a {
 .marker-font {
   font-family: "Permanent Marker", cursive;
   letter-spacing: 0.2em;
-}
-
-.carousel.carousel-slider {
-  border-radius: 1em;
-}
-
-.carousel .control-dots .dot {
-  box-shadow: none !important;
-}
-
-.carousel.carousel-slider .control-arrow:hover {
-  background: none !important;
 }

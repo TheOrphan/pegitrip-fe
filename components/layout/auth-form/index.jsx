@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useToggle, upperFirst } from "@mantine/hooks";
 import { useForm } from "@mantine/form";
 import {
@@ -15,22 +15,25 @@ import {
   Stack,
 } from "@mantine/core";
 import { GoogleButton } from "../../social-button";
-import SliderCaptcha from "@slider-captcha/react";
-import { IconBrandWhatsapp, IconCheck, IconBug } from "@tabler/icons";
-import { signIn } from "next-auth/react";
-import { showNotification } from "@mantine/notifications";
+import { IconBrandWhatsapp } from "@tabler/icons";
+import HCaptcha from "@hcaptcha/react-hcaptcha";
+import { successAuthNotif, failAuthNotif } from "./auth.notif";
+import { loginGoogle, loginEmail } from "./auth.helper";
+import { useSupabaseClient } from "@supabase/auth-helpers-react";
 
-export function AuthenticationForm(props) {
+export default function AuthenticationForm(props) {
+  const sb = useSupabaseClient();
+  const [captchaToken, setCaptchaToken] = useState();
+  const captcha = useRef();
   const [type, toggle] = useToggle(["login", "register"]);
+  const [verified, setVerified] = useState(false);
+  const [onSubmitting, setSubmitting] = useState(false);
+
   useEffect(() => {
     if (props.type) {
       toggle(props.type);
     }
   }, [props.type, toggle]);
-
-  const [isUsingPassword, setUsingPassword] = useState(false);
-  const [verified, setVerified] = useState(false);
-  const [onSubmitting, setSubmitting] = useState(false);
 
   const form = useForm({
     initialValues: {
@@ -56,129 +59,44 @@ export function AuthenticationForm(props) {
     },
   });
 
-  const verifiedCallback = () => {
-    setVerified(true);
-    form.setFieldValue("captcha", true);
-  };
-
   return (
     <Paper radius="md" p="xl" withBorder {...props}>
       <Text size="lg" weight={500}>
-        Welcome to Mantine, {type} with {type === "register" && "email"}
+        Welcome to Pegitrip, {type} with {type === "register" && "email"}
       </Text>
-
       {type === "login" && (
         <Group grow mb="md" mt="md">
-          <GoogleButton radius="xl" onClick={() => signIn("google")}>
+          <GoogleButton radius="xl" onClick={() => loginGoogle({ sb })}>
             Google
           </GoogleButton>
         </Group>
       )}
-
-      <Divider
-        label={type === "login" && "Or continue with email"}
-        labelPosition="center"
-        my="lg"
-      />
-
+      <Divider label={type === "login" && "Or continue with email"} />
       <form
         onSubmit={form.onSubmit(
           async (values, _event) => {
             setSubmitting(true);
-            if (type === "login" && !values.password) {
-              signIn("email", { email: values.email });
-              return;
-            }
-
             if (type === "login" && values.password) {
-              signIn("credentials", {
+              loginEmail({
+                sb,
                 email: values.email,
                 password: values.password,
+                captchaToken,
               });
+              window.location.href = "/";
               return;
             }
             if (type === "register") {
-              const { wa, ...rest } = values;
-              const isRegistered = await fetch("/api/auth/myr", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  ...rest,
-                  wa: "62" + wa,
-                }),
+              captcha.current.resetCaptcha();
+              const isRegistered = await sb.auth.signUp({
+                email: values.email,
+                password: values.password,
+                options: { captchaToken },
               });
-              if (isRegistered.status === 200) {
-                showNotification({
-                  id: "registration-letter",
-                  disallowClose: false,
-                  autoClose: false,
-                  onClose: () => (window.location.href = "/"),
-                  title: "Thank you for registering!",
-                  message: (
-                    <>
-                      <Text color="white">
-                        An email has been sent from &quot;us&quot; to{" "}
-                        {values.email} with a link to verify your account. You
-                        must verify your account to get full access to our
-                        store.
-                      </Text>
-                      <br />
-                      <Text color="white">
-                        If you have not received the email after a few minutes,
-                        check your spam folder. Please email
-                        &quot;our.support@gmail.com&quot; for further
-                        assistance.
-                      </Text>
-                      <br />
-                      <Text color="white">
-                        If you previously verified your account, you will not
-                        need to do so again. Simply try to login with your
-                        credentials`
-                      </Text>
-                    </>
-                  ),
-                  color: "green",
-                  icon: <IconCheck size={20} />,
-                  style: { left: "-18%" },
-                  sx: {
-                    width: 600,
-                    paddingTop: 55,
-                    paddingBottom: 55,
-                    maxHeight: 500,
-                  },
-                  loading: false,
-                });
+              if (isRegistered.data.user.aud === "authenticated") {
+                successAuthNotif(values);
               } else {
-                showNotification({
-                  id: "registration-error",
-                  disallowClose: false,
-                  autoClose: false,
-                  onClose: () => (window.location.href = `/static/contact-us`),
-                  title: "Error occurred when registering!",
-                  message: (
-                    <>
-                      <Text color="white">
-                        There is an error occurred. Please re-check your
-                        credentials information. It is possible if your
-                        information already as our member, try to login instead.
-                        Or if you believe the error in our side, Do not hesitate
-                        to contact us.
-                      </Text>
-                    </>
-                  ),
-                  color: "red",
-                  icon: <IconBug size={20} />,
-                  style: { left: "-18%" },
-                  sx: {
-                    width: 600,
-                    paddingTop: 35,
-                    paddingBottom: 35,
-                    maxHeight: 500,
-                  },
-                  loading: false,
-                });
+                failAuthNotif();
               }
             }
           },
@@ -232,7 +150,6 @@ export function AuthenticationForm(props) {
             placeholder="Your password"
             value={form.values.password}
             onChange={(event) => {
-              setUsingPassword(true);
               form.setFieldValue("password", event.currentTarget.value);
             }}
             error={form.errors.password}
@@ -281,17 +198,21 @@ export function AuthenticationForm(props) {
               ? "Already have an account? Login"
               : "Don't have an account? Register"}
           </Anchor>
-          <SliderCaptcha
-            create="/api/auth/captcha"
-            verify="/api/auth/captcha"
-            callback={verifiedCallback}
+          <HCaptcha
+            ref={captcha}
+            sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITEKEY}
+            onVerify={(token) => {
+              setCaptchaToken(token);
+              setVerified(true);
+            }}
           />
-          <Button disabled={!verified} type="submit" loading={onSubmitting}>
-            {upperFirst(
-              type === "login" && !isUsingPassword
-                ? `${type} tanpa password`
-                : type
-            )}
+          <Button
+            disabled={!verified}
+            type="submit"
+            loading={onSubmitting}
+            fullWidth
+          >
+            {upperFirst(type)}
           </Button>
         </Group>
       </form>

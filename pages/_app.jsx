@@ -1,23 +1,21 @@
+import { useState } from "react";
 import Head from "next/head";
 import Script from "next/script";
 import { MantineProvider } from "@mantine/core";
 import { ModalsProvider } from "@mantine/modals";
 import { NotificationsProvider } from "@mantine/notifications";
-import { SessionProvider } from "next-auth/react";
+import { createBrowserSupabaseClient } from "@supabase/auth-helpers-nextjs";
+import { SessionContextProvider } from "@supabase/auth-helpers-react";
 import Layout from "../components/layout";
-import "react-responsive-carousel/lib/styles/carousel.min.css";
 import "../styles/globals.css";
 
-// Use of the <SessionProvider> is mandatory to allow components that call
-// `useSession()` anywhere in your application to access the `session` object.
-export default function App({
-  Component,
-  pageProps: { session, ...pageProps },
-}) {
+export default function App({ Component, pageProps }) {
+  // Create a new supabase browser client on every first render.
+  const [supabaseClient] = useState(() => createBrowserSupabaseClient());
   return (
     <>
       <Head>
-        <title>Pegiloka</title>
+        <title>Pegi Trip</title>
         <meta
           name="viewport"
           content="minimum-scale=1, initial-scale=1, width=device-width"
@@ -41,7 +39,10 @@ export default function App({
         data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
         strategy="afterInteractive"
       />
-      <SessionProvider session={session}>
+      <SessionContextProvider
+        supabaseClient={supabaseClient}
+        initialSession={pageProps.initialSession}
+      >
         <MantineProvider
           withGlobalStyles
           withNormalizeCSS
@@ -56,7 +57,7 @@ export default function App({
             </ModalsProvider>
           </NotificationsProvider>
         </MantineProvider>
-      </SessionProvider>
+      </SessionContextProvider>
     </>
   );
 }
