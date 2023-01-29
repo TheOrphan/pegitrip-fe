@@ -1,48 +1,88 @@
-import CardList from "../../components/cardlist";
 import Carousel from "../../components/carousel";
-import { Skeleton, Title, Menu, ActionIcon } from "@mantine/core";
-import useBanner from "../../lib/hooks/useBanner";
+import {
+  Skeleton,
+  Title,
+  Card,
+  Group,
+  Badge,
+  Text,
+  Button,
+  Grid,
+  Menu,
+  ActionIcon,
+} from "@mantine/core";
 import {
   IconHeadset,
   IconBrandInstagram,
   IconBrandWhatsapp,
   IconBrandYoutube,
+  IconMapPin,
 } from "@tabler/icons";
+import useBanner from "../../lib/hooks/useBanner";
+import useProduct from "../../lib/hooks/useProduct";
 
-const ads = [
-  "/image/ads/ads1.png",
-  "/image/ads/ads2.png",
-  "/image/ads/ads3.png",
-  "/image/ads/ads4.png",
-  "/image/ads/ads5.png",
-  "/image/ads/ads6.png",
-];
-export default function Page({ datalist, socialMedias }) {
+export default function Page({ socialMedias }) {
   const { banners, isLoading, isError } = useBanner();
+  const { products, isLoading: isLoadingP, isError: isErrorP } = useProduct();
+
   return (
     <div style={{ position: "relative" }}>
       {!isError && (
         <Skeleton visible={isLoading}>
           <Carousel
             {...{
-              images: ads?.map((each) => {
+              slider: true,
+              images: banners?.map((each) => {
                 return {
-                  src: `${each}`,
+                  src: `${each.imageSrc}`,
                 };
               }),
             }}
           />
         </Skeleton>
       )}
-      {datalist.map((each) => (
-        <div key={(Math.random() + 1).toString(36).substring(7) + each.name}>
-          <Title order={2} className="marker-font" pt="lg" pb="xs">
-            {each.name}
-          </Title>
-          <CardList {...{ isLoading: false, products: each.products }} />
-          <br />
-        </div>
-      ))}
+      <Grid mt={20}>
+        {!isErrorP && (
+          <Skeleton visible={isLoadingP}>
+            {products?.map((product) => (
+              <Grid.Col
+                xs={12}
+                sm={6}
+                md={4}
+                lg={3}
+                key={
+                  (Math.random() + 1).toString(36).substring(7) + product.name
+                }
+              >
+                <Card p="sm">
+                  <Card.Section>
+                    <Carousel
+                      {...{
+                        autoplay: false,
+                        images: product.thumbnails?.map((each) => {
+                          return {
+                            src: `${each}`,
+                          };
+                        }),
+                      }}
+                    />
+                  </Card.Section>
+                  <Group position="apart" mt="sm">
+                    <Badge color="pink" variant="light">
+                      {product.subtitle}
+                    </Badge>
+                  </Group>
+                  <Text weight={500}>{product.name}</Text>
+                  <Text>{product.price}</Text>
+                  <Text fz="md" mt={10}>
+                    <IconMapPin size={14} /> {product.expand.location_id.name}
+                  </Text>
+                </Card>
+              </Grid.Col>
+            ))}
+          </Skeleton>
+        )}
+      </Grid>
       <Menu
         shadow="md"
         style={{ position: "sticky", bottom: 5, float: "right" }}
@@ -69,7 +109,7 @@ export default function Page({ datalist, socialMedias }) {
           ].map((e, i) => (
             <a
               target="_blank"
-              href={socialMedias?.filter((res) => res.key === e.key)[0].value}
+              // href={socialMedias?.filter((res) => res.key === e.key)[0].value}
               rel="noopener noreferrer"
               key={i + e.col}
             >

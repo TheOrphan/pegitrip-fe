@@ -1,17 +1,13 @@
-import { useState } from "react";
 import Head from "next/head";
 import Script from "next/script";
 import { MantineProvider } from "@mantine/core";
 import { ModalsProvider } from "@mantine/modals";
 import { NotificationsProvider } from "@mantine/notifications";
-import { createBrowserSupabaseClient } from "@supabase/auth-helpers-nextjs";
-import { SessionContextProvider } from "@supabase/auth-helpers-react";
 import Layout from "../components/layout";
 import "../styles/globals.css";
 
 export default function App({ Component, pageProps }) {
   // Create a new supabase browser client on every first render.
-  const [supabaseClient] = useState(() => createBrowserSupabaseClient());
   return (
     <>
       <Head>
@@ -39,25 +35,20 @@ export default function App({ Component, pageProps }) {
         data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
         strategy="afterInteractive"
       />
-      <SessionContextProvider
-        supabaseClient={supabaseClient}
-        initialSession={pageProps.initialSession}
+      <MantineProvider
+        withGlobalStyles
+        withNormalizeCSS
+        theme={{
+          colorScheme: "light",
+          spacing: { xs: 15, sm: 20, md: 25, lg: 30, xl: 40 },
+        }}
       >
-        <MantineProvider
-          withGlobalStyles
-          withNormalizeCSS
-          theme={{
-            colorScheme: "dark",
-            spacing: { xs: 15, sm: 20, md: 25, lg: 30, xl: 40 },
-          }}
-        >
-          <NotificationsProvider position="bottom-center" zIndex={2077}>
-            <ModalsProvider>
-              <Layout {...{ Component, pageProps }} />
-            </ModalsProvider>
-          </NotificationsProvider>
-        </MantineProvider>
-      </SessionContextProvider>
+        <NotificationsProvider position="bottom-center" zIndex={2077}>
+          <ModalsProvider>
+            <Layout {...{ Component, pageProps }} />
+          </ModalsProvider>
+        </NotificationsProvider>
+      </MantineProvider>
     </>
   );
 }

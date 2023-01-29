@@ -1,6 +1,6 @@
 import { createStyles } from "@mantine/core";
 
-const HEADER_HEIGHT = 60;
+const HEADER_HEIGHT = 80;
 
 const headerStyle = createStyles((theme) => ({
   inner: {
@@ -20,6 +20,10 @@ const headerStyle = createStyles((theme) => ({
     [theme.fn.largerThan("sm")]: {
       display: "none",
     },
+  },
+
+  search: {
+    width: 650,
   },
 
   link: {

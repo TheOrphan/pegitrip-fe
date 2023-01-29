@@ -6,6 +6,8 @@ import {
   Image,
   Select,
   Text,
+  Space,
+  Flex,
   UnstyledButton,
   Avatar,
   Skeleton,
@@ -20,31 +22,24 @@ import {
 import Link from "next/link";
 import AutoCompleteItem from "./AutoComplete";
 import { IconLogout } from "@tabler/icons";
-import { useUser } from "@supabase/auth-helpers-react";
 import { useDisclosure } from "@mantine/hooks";
 import { headerStyle, HEADER_HEIGHT } from "./header.usestyle";
 import { emailOverflow, nameOverflow } from "@helper";
 
 const fetcher = async (key) =>
-  fetch(process.env.NEXT_PUBLIC_BE_URI + "/api/products?search=" + key).then(
-    (res) => res.json()
-  );
+  fetch("/api/products?search=" + key).then((res) => res.json());
 
 export default function Page() {
-  const session = useUser();
+  // const session = useUser();
   const { classes } = headerStyle();
   const [opened, { toggle }] = useDisclosure(false);
   const [searchVal, setSearch] = useState("");
   const [search] = useDebouncedValue(searchVal, 200);
-  const { data: searchData } = useSWR(
-    `/api/products?search=${search}`,
-    fetcher
-  );
-
+  const { data: searchData } = useSWR(search, fetcher);
   return (
     <Header
       height={HEADER_HEIGHT}
-      sx={{ borderBottom: 0 }}
+      sx={{ borderBottom: 0, boxShadow: "0px 1px 5px -5px black" }}
       mb={120}
       px={"4rem"}
     >
@@ -57,40 +52,68 @@ export default function Page() {
             size="sm"
           />
           <Link href="/">
-            <Image height={32} src="/image/logo.png" alt="our-brand-logo" />
+            <Image height={60} src="/image/logo.png" alt="our-brand-logo" />
           </Link>
         </Group>
         <Group spacing={5} className={classes.links}>
-          <Select
-            placeholder="Cari mobile legend"
-            data={searchData?.data || []}
-            itemComponent={AutoCompleteItem}
-            clearable
-            searchable
-            onSearchChange={(value) => setSearch(value)}
-            onChange={(value) =>
-              value && (window.location.href = `/product/${value}`)
-            }
-            onKeyDown={(event) =>
-              event.key === "Enter" &&
-              (window.location.href = `/?search=${searchVal}`)
-            }
-            searchValue={searchVal}
-            nothingFound={search?.length > 0 && "No game found"}
-            maxDropdownHeight={350}
-            filter={(value, item) =>
-              item.name.toLowerCase().includes(value?.toLowerCase().trim())
-            }
-          />
+          <div>
+            <Select
+              className={classes.search}
+              placeholder="Tour ujung kulon"
+              data={searchData?.data || []}
+              itemComponent={AutoCompleteItem}
+              clearable
+              searchable
+              onSearchChange={(value) => setSearch(value)}
+              onChange={(value) =>
+                value && (window.location.href = `/product/${value}`)
+              }
+              onKeyDown={(event) =>
+                event.key === "Enter" &&
+                (window.location.href = `/?search=${searchVal}`)
+              }
+              searchValue={searchVal}
+              nothingFound={search?.length > 0 && "No game found"}
+              maxDropdownHeight={350}
+              filter={(value, item) =>
+                item.name.toLowerCase().includes(value?.toLowerCase().trim())
+              }
+            />
+            <Flex
+              direction={{ base: "column", sm: "row" }}
+              pl={15}
+              pt={5}
+              justify="flex-start"
+              align="flex-start"
+              wrap="wrap"
+            >
+              <Text fz="sm" c="dimmed">
+                Open trip
+              </Text>
+              <Space w="md" />
+              <Text fz="sm" c="dimmed">
+                Private trip
+              </Text>
+              <Space w="md" />
+              <Text fz="sm" c="dimmed">
+                Promo
+              </Text>
+              <Space w="md" />
+              <Text fz="sm" c="dimmed">
+                Angkasa pura
+              </Text>
+              <Space w="md" />
+              <Text fz="sm" c="dimmed">
+                Company outbound
+              </Text>
+            </Flex>
+          </div>
         </Group>
         <Group position="right" spacing="xs" grow>
-          {!session && (
-            <Button
-              m={0}
-              onClick={() => (window.location.href = "/auth/login")}
-            >
-              Sign in
-            </Button>
+          <Button m={0} onClick={() => (window.location.href = "/auth/login")}>
+            Sign in
+          </Button>
+          {/* {!session && (
           )}
           {session?.user && (
             <Menu shadow="md" width={200} position="bottom-end">
@@ -134,7 +157,7 @@ export default function Page() {
                 </Menu.Item>
               </Menu.Dropdown>
             </Menu>
-          )}
+          )} */}
         </Group>
       </Container>
     </Header>
