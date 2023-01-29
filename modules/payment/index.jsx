@@ -7,7 +7,7 @@ import {
   Button,
   Group,
 } from "@mantine/core";
-import { IconChecks, IconShoppingBag } from "@tabler/icons";
+import { IconChecks } from "@tabler/icons";
 
 export default function Page({ transactionDetail }) {
   const { transaction, product, variant } = transactionDetail;
@@ -83,7 +83,7 @@ export default function Page({ transactionDetail }) {
                   ) : (
                     <Button
                       fullWidth
-                      leftIcon={<IconShoppingBag size={14} />}
+                      leftIcon={<IconChecks size={14} />}
                       color="orange"
                       onClick={() => {
                         window.location.href = `/product/${product.slug}`;
