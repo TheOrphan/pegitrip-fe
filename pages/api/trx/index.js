@@ -1,5 +1,5 @@
-import { Prisma } from "@prisma/client";
-import { prisma } from "../../../lib/prismadb";
+// import { Prisma } from "@prisma/client";
+// import { prisma } from "../../../lib/prismadb";
 import { decrypt } from "lib/crypto";
 import * as dayjs from "dayjs";
 import rateLimit from "lib/rate-limit";
@@ -76,22 +76,22 @@ export default async function handler(req, res) {
             }
           );
           const content = await midtransResponse.json();
-          const message = await prisma.transactions.create({
-            data: {
-              variant_id: parseInt(rest.variant_id),
-              // payment_fee_id: parseInt(rest.payment_fee_id || 0),
-              payment_fee_id: null,
-              user_id: rest.user_id,
-              phone: rest.phone,
-              invoice_number: rest.invoice_number,
-              total_price: rest.total_price,
-              uid_game: rest.uid_game,
-              status: 0,
-              snap_token: content.token,
-              created_at: dayjs().add(7, "hour").toISOString(),
-              updated_at: dayjs().add(7, "hour").toISOString(),
-            },
-          });
+          // const message = await prisma.transactions.create({
+          //   data: {
+          //     variant_id: parseInt(rest.variant_id),
+          //     // payment_fee_id: parseInt(rest.payment_fee_id || 0),
+          //     payment_fee_id: null,
+          //     user_id: rest.user_id,
+          //     phone: rest.phone,
+          //     invoice_number: rest.invoice_number,
+          //     total_price: rest.total_price,
+          //     uid_game: rest.uid_game,
+          //     status: 0,
+          //     snap_token: content.token,
+          //     created_at: dayjs().add(7, "hour").toISOString(),
+          //     updated_at: dayjs().add(7, "hour").toISOString(),
+          //   },
+          // });
           if (message) {
             const invoice = {
               number: rest.invoice_number,
@@ -119,13 +119,13 @@ export default async function handler(req, res) {
             sendInvoiceEmail(rest.email, invoice, req);
           }
         } catch (e) {
-          if (e instanceof Prisma.PrismaClientKnownRequestError) {
-            res.status(500).send({
-              errCode: e.code,
-              errMsg: e.message,
-              errTarget: e.meta,
-            });
-          }
+          // if (e instanceof Prisma.PrismaClientKnownRequestError) {
+          //   res.status(500).send({
+          //     errCode: e.code,
+          //     errMsg: e.message,
+          //     errTarget: e.meta,
+          //   });
+          // }
           throw e;
         }
       }

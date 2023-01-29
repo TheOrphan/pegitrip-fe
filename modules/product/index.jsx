@@ -17,7 +17,7 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useId } from "@mantine/hooks";
-import { useSession } from "next-auth/react";
+// import { useSession } from "next-auth/react";
 import LoadingComp from "../../components/loading";
 import { useProductBySlug } from "../../lib/hooks/useProduct";
 import { useCheckRoleApi } from "../../lib/hooks/useCustomApi";
@@ -26,7 +26,6 @@ import usePaymentMethodC from "../../lib/hooks/usePaymentMethodC";
 import usePaymentMethod from "../../lib/hooks/usePaymentMethod";
 import useVariant from "../../lib/hooks/useVariant";
 import { useState } from "react";
-import SliderCaptcha from "@slider-captcha/react";
 import { Paper } from "@mantine/core";
 import { useEffect } from "react";
 import * as dayjs from "dayjs";
@@ -35,7 +34,7 @@ import { IconCheck, IconBug } from "@tabler/icons";
 import { encrypt } from "lib/crypto";
 
 export default function Products({ slug, myt, qParams }) {
-  const { data: session, status } = useSession();
+  // const { data: session, status } = useSession();
 
   const { classes } = useStyles();
   const { classes: chipClasses } = useChipStyles();
@@ -406,13 +405,7 @@ export default function Products({ slug, myt, qParams }) {
                         </Accordion.Item>
                       ))}
                     </Accordion> */}
-                    <Paper style={{ width: 150 }} my={20}>
-                      <SliderCaptcha
-                        create="/api/auth/captcha"
-                        verify="/api/auth/captcha"
-                        callback={verifiedCallback}
-                      />
-                    </Paper>
+                    <Paper style={{ width: 150 }} my={20}></Paper>
                     <Text color="red" size="sm">
                       {form.errors.captcha}
                     </Text>
@@ -508,7 +501,7 @@ export default function Products({ slug, myt, qParams }) {
               variant="subtle"
               onClick={() => {
                 setPurchasing(true);
-                order({ ...form.values, ...session, myt });
+                order({ ...form.values, myt });
               }}
               loading={onPurchasing}
             >
@@ -532,9 +525,9 @@ export default function Products({ slug, myt, qParams }) {
   );
 }
 const order = async (dataOrder) => {
-  const invoiceNumber = `OU-${
-    dataOrder?.session?.user_id || "G"
-  }-${dayjs().format("YYYYMMDDTHHmmsss")}`;
+  const invoiceNumber = `OU-${dataOrder || "G"}-${dayjs().format(
+    "YYYYMMDDTHHmmsss"
+  )}`;
   // const grossAmount = 2000 + parseInt(dataOrder.paymentMethod?.split(";")[1]);
   const grossAmount = 2000 + parseInt(dataOrder.variant?.split(";")[1]);
   const dataInvoice = {
@@ -550,7 +543,7 @@ const order = async (dataOrder) => {
     email: dataOrder.email,
     variant_id: dataOrder.variant?.split(";")[2],
     // payment_fee_id: dataOrder.paymentMethod?.split(";")[2],
-    user_id: dataOrder?.session?.user_id || "guest@@@" + dataOrder.email,
+    user_id: dataOrder || "guest@@@" + dataOrder.email,
     phone: dataOrder.wa,
     invoice_number: invoiceNumber,
     total_price: grossAmount,

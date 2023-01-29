@@ -11,7 +11,6 @@ import {
   Stack,
   Select,
 } from "@mantine/core";
-import SliderCaptcha from "@slider-captcha/react";
 import {
   IconBrandWhatsapp,
   IconCheck,
@@ -165,11 +164,6 @@ export function ContactUsForm(props) {
         </Stack>
 
         <Group position="apart" mt="xl">
-          <SliderCaptcha
-            create="/api/auth/captcha"
-            verify="/api/auth/captcha"
-            callback={verifiedCallback}
-          />
           <Button
             rightIcon={
               submitOk ? <IconCheck size={24} /> : <IconMailFast size={24} />

@@ -19,10 +19,8 @@ import { IconBrandWhatsapp } from "@tabler/icons";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
 import { successAuthNotif, failAuthNotif } from "./auth.notif";
 import { loginGoogle, loginEmail } from "./auth.helper";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
 
 export default function AuthenticationForm(props) {
-  const sb = useSupabaseClient();
   const [captchaToken, setCaptchaToken] = useState();
   const captcha = useRef();
   const [type, toggle] = useToggle(["login", "register"]);
@@ -66,9 +64,7 @@ export default function AuthenticationForm(props) {
       </Text>
       {type === "login" && (
         <Group grow mb="md" mt="md">
-          <GoogleButton radius="xl" onClick={() => loginGoogle({ sb })}>
-            Google
-          </GoogleButton>
+          <GoogleButton radius="xl">Google</GoogleButton>
         </Group>
       )}
       <Divider label={type === "login" && "Or continue with email"} />
@@ -78,7 +74,6 @@ export default function AuthenticationForm(props) {
             setSubmitting(true);
             if (type === "login" && values.password) {
               loginEmail({
-                sb,
                 email: values.email,
                 password: values.password,
                 captchaToken,
@@ -88,11 +83,11 @@ export default function AuthenticationForm(props) {
             }
             if (type === "register") {
               captcha.current.resetCaptcha();
-              const isRegistered = await sb.auth.signUp({
-                email: values.email,
-                password: values.password,
-                options: { captchaToken },
-              });
+              // const isRegistered = await sb.auth.signUp({
+              //   email: values.email,
+              //   password: values.password,
+              //   options: { captchaToken },
+              // });
               if (isRegistered.data.user.aud === "authenticated") {
                 successAuthNotif(values);
               } else {

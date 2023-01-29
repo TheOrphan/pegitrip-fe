@@ -1,5 +1,5 @@
-import { Prisma } from "@prisma/client";
-import { prisma } from "../../../lib/prismadb";
+// import { Prisma } from "@prisma/client";
+// import { prisma } from "../../../lib/prismadb";
 import { decrypt } from "lib/crypto";
 import * as dayjs from "dayjs";
 import rateLimit from "lib/rate-limit";
@@ -42,25 +42,25 @@ export default async function handler(req, res) {
         });
       } else {
         try {
-          const message = await prisma.inboxes.create({
-            data: {
-              ...rest,
-              status: 0,
-              created_at: dayjs().add(7, "hour").toISOString(),
-              updated_at: dayjs().add(7, "hour").toISOString(),
-            },
-          });
-          if (message) {
-            res.status(200).send({ msg: "message sent successfully." });
-          }
+          // const message = await prisma.inboxes.create({
+          //   data: {
+          //     ...rest,
+          //     status: 0,
+          //     created_at: dayjs().add(7, "hour").toISOString(),
+          //     updated_at: dayjs().add(7, "hour").toISOString(),
+          //   },
+          // });
+          // if (message) {
+          res.status(200).send({ msg: "message sent successfully." });
+          // }
         } catch (e) {
-          if (e instanceof Prisma.PrismaClientKnownRequestError) {
-            res.status(500).send({
-              errCode: e.code,
-              errMsg: e.message,
-              errTarget: e.meta,
-            });
-          }
+          // if (e instanceof Prisma.PrismaClientKnownRequestError) {
+          //   res.status(500).send({
+          //     errCode: e.code,
+          //     errMsg: e.message,
+          //     errTarget: e.meta,
+          //   });
+          // }
           throw e;
         }
       }

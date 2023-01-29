@@ -1,6 +1,6 @@
 import * as bcrypt from "bcrypt";
-import { Prisma } from "@prisma/client";
-import { prisma } from "../../../lib/prismadb";
+// import { Prisma } from "@prisma/client";
+// import { prisma } from "../../../lib/prismadb";
 import { decrypt } from "lib/crypto";
 import * as dayjs from "dayjs";
 import rateLimit from "lib/rate-limit";
@@ -45,24 +45,24 @@ export default async function handler(req, res) {
       } else {
         try {
           const hashedPassword = await bcrypt.hash(password, 10);
-          const user = await prisma.user.create({
-            data: {
-              ...rest,
-              password: hashedPassword,
-            },
-          });
-          if (user) {
-            res.status(200).send({ msg: "user registered successfully." });
-          }
+          // const user = await prisma.user.create({
+          //   data: {
+          //     ...rest,
+          //     password: hashedPassword,
+          //   },
+          // });
+          // if (user) {
+          //   res.status(200).send({ msg: "user registered successfully." });
+          // }
           sendRegistrationEmail(user, req);
         } catch (e) {
-          if (e instanceof Prisma.PrismaClientKnownRequestError) {
-            res.status(500).send({
-              errCode: e.code,
-              errMsg: e.message,
-              errTarget: e.meta,
-            });
-          }
+          // if (e instanceof Prisma.PrismaClientKnownRequestError) {
+          //   res.status(500).send({
+          //     errCode: e.code,
+          //     errMsg: e.message,
+          //     errTarget: e.meta,
+          //   });
+          // }
           throw e;
         }
       }

@@ -1,4 +1,4 @@
-import { signIn } from "next-auth/react";
+// import { signIn } from "next-auth/react";
 import Link from "next/link";
 
 export default function AccessDenied() {
@@ -10,7 +10,7 @@ export default function AccessDenied() {
           <a
             onClick={(e) => {
               e.preventDefault();
-              signIn();
+              // signIn();
             }}
           >
             You must be signed in to view this page

@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import { decrypt } from "lib/crypto";
 import { EmailVerifiedImage } from "components/layout/email-verify";
-import { prisma } from "../../lib/prismadb";
+// import { prisma } from "../../lib/prismadb";
 
 function Home({ message, status, user }) {
   return <EmailVerifiedImage {...{ message, status, user }} />;
@@ -23,28 +23,28 @@ export async function getServerSideProps({ params }) {
     const diffTime = dateNow.diff(dateMyt, "hour");
     userMyt = JSON.parse(resMyt[0]);
 
-    if (diffTime > 24) {
-      status = false;
-      message =
-        "Your verify token is expired. Please refresh your token and try again.";
-    } else {
-      const user = await prisma.user.update({
-        where: {
-          email: userMyt.email,
-        },
-        data: {
-          emailVerified: dayjs().add(7, "hour").toISOString(),
-        },
-      });
-      status = false;
-      message =
-        "Something is wrong with the verification token. Please re-verify!";
+    // if (diffTime > 24) {
+    //   status = false;
+    //   message =
+    //     "Your verify token is expired. Please refresh your token and try again.";
+    // } else {
+    // const user = await prisma.user.update({
+    //   where: {
+    //     email: userMyt.email,
+    //   },
+    //   data: {
+    //     emailVerified: dayjs().add(7, "hour").toISOString(),
+    //   },
+    // });
+    status = false;
+    message =
+      "Something is wrong with the verification token. Please re-verify!";
 
-      if (user) {
-        message = "Your email is verified.";
-        status = true;
-      }
-    }
+    // if (user) {
+    //   message = "Your email is verified.";
+    //   status = true;
+    // }
+    // }
   }
   return {
     props: { message, status, user: userMyt },
